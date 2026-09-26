@@ -1,0 +1,115 @@
+model,fold,row_index,wilayah,actual,predicted
+Rerata pelatihan,1,2,Banyuwangi,7.34,10.569333333333335
+Rerata pelatihan,1,5,Bondowoso,13.34,10.569333333333335
+Rerata pelatihan,1,13,Kota Madiun,4.74,10.569333333333335
+Rerata pelatihan,1,19,Lamongan,12.42,10.569333333333335
+Rerata pelatihan,1,24,Mojokerto,9.8,10.569333333333335
+Rerata pelatihan,1,29,Pasuruan,9.239999999999998,10.569333333333335
+Rerata pelatihan,1,36,Trenggalek,10.63,10.569333333333335
+Rerata pelatihan,1,38,Tulungagung,6.53,10.569333333333335
+Regresi Linear,1,2,Banyuwangi,7.34,11.181887250707577
+Regresi Linear,1,5,Bondowoso,13.34,13.980225751905357
+Regresi Linear,1,13,Kota Madiun,4.74,2.7229577246370193
+Regresi Linear,1,19,Lamongan,12.42,9.840349626987862
+Regresi Linear,1,24,Mojokerto,9.8,8.673111962798579
+Regresi Linear,1,29,Pasuruan,9.239999999999998,13.215989436684538
+Regresi Linear,1,36,Trenggalek,10.63,12.283668202345005
+Regresi Linear,1,38,Tulungagung,6.53,9.762121914690463
+Random Forest,1,2,Banyuwangi,7.34,11.772267333333332
+Random Forest,1,5,Bondowoso,13.34,13.322925666666668
+Random Forest,1,13,Kota Madiun,4.74,5.542420333333332
+Random Forest,1,19,Lamongan,12.42,10.174732000000013
+Random Forest,1,24,Mojokerto,9.8,8.026049666666678
+Random Forest,1,29,Pasuruan,9.239999999999998,10.842707666666666
+Random Forest,1,36,Trenggalek,10.63,11.841408333333343
+Random Forest,1,38,Tulungagung,6.53,10.088447333333338
+Rerata pelatihan,2,7,Jember,9.51,10.302333333333333
+Rerata pelatihan,2,8,Jombang,9.15,10.302333333333333
+Rerata pelatihan,2,9,Kediri,10.72,10.302333333333333
+Rerata pelatihan,2,15,Kota Mojokerto,5.7700000000000005,10.302333333333333
+Rerata pelatihan,2,22,Magetan,9.8,10.302333333333333
+Rerata pelatihan,2,31,Probolinggo,17.19,10.302333333333333
+Rerata pelatihan,2,33,Sidoarjo,5,10.302333333333333
+Rerata pelatihan,2,37,Tuban,14.91,10.302333333333333
+Regresi Linear,2,7,Jember,9.51,14.14067217361658
+Regresi Linear,2,8,Jombang,9.15,9.13458086909131
+Regresi Linear,2,9,Kediri,10.72,9.4684490521442
+Regresi Linear,2,15,Kota Mojokerto,5.7700000000000005,5.592858309453157
+Regresi Linear,2,22,Magetan,9.8,9.119225215329042
+Regresi Linear,2,31,Probolinggo,17.19,14.52798428092445
+Regresi Linear,2,33,Sidoarjo,5,3.3697431161606053
+Regresi Linear,2,37,Tuban,14.91,12.39266012562178
+Random Forest,2,7,Jember,9.51,12.538751666666654
+Random Forest,2,8,Jombang,9.15,9.633540000000028
+Random Forest,2,9,Kediri,10.72,10.57295166666667
+Random Forest,2,15,Kota Mojokerto,5.7700000000000005,6.053094666666669
+Random Forest,2,22,Magetan,9.8,10.403160333333348
+Random Forest,2,31,Probolinggo,17.19,12.639608999999982
+Random Forest,2,33,Sidoarjo,5,6.449956000000004
+Random Forest,2,37,Tuban,14.91,10.318426666666664
+Rerata pelatihan,3,4,Bojonegoro,12.18,10.20516129032258
+Rerata pelatihan,3,16,Kota Pasuruan,6.6,10.20516129032258
+Rerata pelatihan,3,18,Kota Surabaya,4.6499999999999995,10.20516129032258
+Rerata pelatihan,3,23,Malang,9.45,10.20516129032258
+Rerata pelatihan,3,27,Pacitan,13.65,10.20516129032258
+Rerata pelatihan,3,30,Ponorogo,9.53,10.20516129032258
+Rerata pelatihan,3,35,Sumenep,18.7,10.20516129032258
+Regresi Linear,3,4,Bojonegoro,12.18,12.925449419992159
+Regresi Linear,3,16,Kota Pasuruan,6.6,8.595302860116345
+Regresi Linear,3,18,Kota Surabaya,4.6499999999999995,6.6846461743616326
+Regresi Linear,3,23,Malang,9.45,11.409985969924033
+Regresi Linear,3,27,Pacitan,13.65,11.992774547050537
+Regresi Linear,3,30,Ponorogo,9.53,11.74408490734861
+Regresi Linear,3,35,Sumenep,18.7,15.453249504865477
+Random Forest,3,4,Bojonegoro,12.18,10.63001766666667
+Random Forest,3,16,Kota Pasuruan,6.6,7.135298666666674
+Random Forest,3,18,Kota Surabaya,4.6499999999999995,5.626601000000011
+Random Forest,3,23,Malang,9.45,9.437653000000012
+Random Forest,3,27,Pacitan,13.65,12.791978666666672
+Random Forest,3,30,Ponorogo,9.53,12.116791666666668
+Random Forest,3,35,Sumenep,18.7,15.301474000000024
+Rerata pelatihan,4,1,Bangkalan,19.35,10.21225806451613
+Rerata pelatihan,4,3,Blitar,8.69,10.21225806451613
+Rerata pelatihan,4,6,Gresik,10.96,10.21225806451613
+Rerata pelatihan,4,10,Kota Batu,3.3099999999999996,10.21225806451613
+Rerata pelatihan,4,17,Kota Probolinggo,6.48,10.21225806451613
+Rerata pelatihan,4,28,Pamekasan,13.85,10.21225806451613
+Rerata pelatihan,4,34,Situbondo,11.9,10.21225806451613
+Regresi Linear,4,1,Bangkalan,19.35,8.062392100000055
+Regresi Linear,4,3,Blitar,8.69,10.782403168808624
+Regresi Linear,4,6,Gresik,10.96,4.019720239094756
+Regresi Linear,4,10,Kota Batu,3.3099999999999996,8.26212435295757
+Regresi Linear,4,17,Kota Probolinggo,6.48,8.295999060518971
+Regresi Linear,4,28,Pamekasan,13.85,13.518496111501765
+Regresi Linear,4,34,Situbondo,11.9,11.74759579184882
+Random Forest,4,1,Bangkalan,19.35,14.075021666666672
+Random Forest,4,3,Blitar,8.69,9.932808000000003
+Random Forest,4,6,Gresik,10.96,7.069973666666673
+Random Forest,4,10,Kota Batu,3.3099999999999996,7.997325666666672
+Random Forest,4,17,Kota Probolinggo,6.48,7.975886333333336
+Random Forest,4,28,Pamekasan,13.85,14.352249666666658
+Random Forest,4,34,Situbondo,11.9,14.059877999999996
+Rerata pelatihan,5,11,Kota Blitar,7.3,10.179666666666668
+Rerata pelatihan,5,12,Kota Kediri,7.1499999999999995,10.179666666666668
+Rerata pelatihan,5,14,Kota Malang,4.26,10.179666666666668
+Rerata pelatihan,5,20,Lumajang,8.93,10.179666666666668
+Rerata pelatihan,5,21,Madiun,11.04,10.179666666666668
+Rerata pelatihan,5,25,Nganjuk,10.89,10.179666666666668
+Rerata pelatihan,5,26,Ngawi,14.4,10.179666666666668
+Rerata pelatihan,5,32,Sampang,21.76,10.179666666666668
+Regresi Linear,5,11,Kota Blitar,7.3,5.121944301331459
+Regresi Linear,5,12,Kota Kediri,7.1499999999999995,9.90793187793973
+Regresi Linear,5,14,Kota Malang,4.26,3.5816714143902506
+Regresi Linear,5,20,Lumajang,8.93,14.087049516855012
+Regresi Linear,5,21,Madiun,11.04,9.868274326776374
+Regresi Linear,5,25,Nganjuk,10.89,9.5031075436557515
+Regresi Linear,5,26,Ngawi,14.4,10.999077559082087
+Regresi Linear,5,32,Sampang,21.76,16.604489417481254
+Random Forest,5,11,Kota Blitar,7.3,5.369580999999992
+Random Forest,5,12,Kota Kediri,7.1499999999999995,5.154893666666663
+Random Forest,5,14,Kota Malang,4.26,5.519839
+Random Forest,5,20,Lumajang,8.93,14.218233666666654
+Random Forest,5,21,Madiun,11.04,9.990160333333337
+Random Forest,5,25,Nganjuk,10.89,9.623546333333344
+Random Forest,5,26,Ngawi,14.4,10.791836333333332
+Random Forest,5,32,Sampang,21.76,16.912797666666656

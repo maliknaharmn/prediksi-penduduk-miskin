@@ -4,7 +4,8 @@ scripts <- c(
   "scripts/03_preprocessing.R",
   "scripts/04_model_lm.R",
   "scripts/05_model_rf.R",
-  "scripts/06_evaluation.R"
+  "scripts/06_evaluation.R",
+  "scripts/07_nested_validation.R"
 )
 
 for (script in scripts) {

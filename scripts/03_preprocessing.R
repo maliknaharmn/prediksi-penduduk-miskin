@@ -1,4 +1,5 @@
 source("scripts/00_common.R")
+source("scripts/validation.R")
 
 dataset <- readr::read_csv("data/processed/dataset_final.csv", show_col_types = FALSE)
 
@@ -30,8 +31,9 @@ model_dataset <- dataset |>
     rata_lama_sekolah,
     sanitasi_layak,
     kepadatan_penduduk
-  ) |>
-  tidyr::drop_na()
+  )
+
+validate_model_data(model_dataset)
 
 save_table(model_dataset, "data/processed/model_dataset.csv")
 save_table(outlier_summary, "output/tables/outlier_summary.csv")
