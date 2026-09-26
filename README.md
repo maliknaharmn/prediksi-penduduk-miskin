@@ -1,61 +1,66 @@
 # Model Prediksi Persentase Penduduk Miskin Jawa Timur 2023
 
-Project ini menganalisis dan memodelkan persentase penduduk miskin kabupaten/kota di Provinsi Jawa Timur tahun 2023 menggunakan Regresi Linear dan Random Forest Regression.
+Analisis 38 kabupaten/kota di Jawa Timur tahun 2023 menggunakan Regresi Linear dan Random Forest. Targetnya **persentase penduduk miskin**, bukan *poverty line/garis kemiskinan*. Hasil bersifat prediktif, bukan kausal.
 
-Nama project sengaja memakai istilah **persentase penduduk miskin**, bukan **poverty line/garis kemiskinan**, karena target data yang digunakan adalah persentase penduduk miskin.
+## Hasil Singkat
+
+Evaluasi awal, repeated 5-fold CV × 10 (`output/tables/model_comparison.csv`; tuning RF memakai resampling yang sama):
+
+| Model | RMSE | MAE | R² |
+| --- | ---: | ---: | ---: |
+| Regresi Linear | 3,068 | 2,452 | 0,539 |
+| Random Forest | 2,713 | 2,145 | 0,640 |
+
+Evaluasi tambahan dengan 5 fold luar, 3 fold dalam untuk tuning RF, dan baseline rerata data latih tiap fold (`output/tables/nested_cv_summary.csv`; seed 2026):
+
+| Model | RMSE | MAE | R² |
+| --- | ---: | ---: | ---: |
+| Rerata pelatihan | 4,286 | 3,326 | -0,010 |
+| Regresi Linear | 3,306 | 2,525 | 0,399 |
+| Random Forest | 2,674 | 2,137 | 0,607 |
+
+RMSE/MAE dalam poin persentase. Sampel kecil membuat angka sensitif terhadap pembagian fold; belum ada pengujian eksternal lintas tahun. [Laporan HTML](report/laporan_kemiskinan_jatim.html) memuat analisis awal, sedangkan evaluasi nested tambahan tersedia di CSV.
+
+## Data dan Sumber
+
+Berkas `data/raw/` memuat salinan data BPS tahun 2023. Berikut tautan tabel resmi dan satuan variabel modeling; tabel daring dapat diperbarui setelah CSV diunduh sehingga audit nilai per wilayah tetap diperlukan.
+
+| Variabel | Satuan / definisi | Referensi BPS |
+| --- | --- | --- |
+| `persentase_miskin` | Penduduk miskin, Maret (%) | [Kemiskinan kabupaten/kota](https://jatim.bps.go.id/id/statistics-table/2/NDk3IzI=/persentase-penduduk-miskin-menurutkabupaten-kota-di-jawa-timur.html) |
+| `ipm` | Indeks Pembangunan Manusia (indeks) | [IPM kabupaten/kota](https://jatim.bps.go.id/id/statistics-table/2/MzYjMg==/indeks-pembangunan-manusia-menurut-kebupaten-kota.html) |
+| `tpt` | Pengangguran terbuka, Agustus (%) | [TPT kabupaten/kota](https://jatim.bps.go.id/id/statistics-table/2/NTQjMg==/tingkat-pengangguran-terbuka--tpt--menurut-kabupaten-kota.html) |
+| `pdrb_per_kapita_juta` | PDRB ADHB per kapita (juta rupiah); CSV sumber ribu rupiah dibagi 1.000 | [PDRB per kapita](https://jatim.bps.go.id/id/statistics-table/2/MzI3IzI=/-seri-2010--pdrb-perkapita-atas-dasar-harga-berlaku-menurut-kabupaten-kota.html) |
+| `rata_lama_sekolah` | Rata-rata lama sekolah penduduk 15+ (tahun) | URL tabel spesifik belum terverifikasi; lihat `data/raw/rls_2023.csv` |
+| `sanitasi_layak` | Rumah tangga dengan sanitasi layak (%) | [Sanitasi layak kabupaten/kota](https://jatim.bps.go.id/id/statistics-table/3/VGtGTU5qbDFlQzl1VWxCTVNWZElXbWRhWkUwMFVUMDkjMyMzNTAw/persentase-rumah-tangga-yang-memiliki-akses-terhadap-sanitasi-layak-menurut-kabupaten-kota-di-provinsi-jawa-timur.html) |
+| `kepadatan_penduduk` | Jiwa/km² | URL tabel spesifik belum terverifikasi; lihat `data/raw/penduduk_2023.csv` |
+
+Baris agregat Jawa Timur dikeluarkan dari observasi kabupaten/kota. Tautan seri BPS ditemukan melalui indeks pencarian; pilih tahun 2023 pada tabel multi-tahun. Untuk RLS dan kepadatan, jangan menebak URL sebelum diverifikasi.
 
 ## Struktur Project
 
-```text
-.
-├── data/
-│   ├── raw/                  # CSV BPS mentah dengan nama file stabil
-│   └── processed/            # Dataset gabungan dan dataset modeling
-├── scripts/
-│   ├── 00_common.R           # Helper, dependency check, metrik
-│   ├── 01_load_data.R        # Import dan penggabungan data
-│   ├── 02_eda.R              # Statistik deskriptif dan visualisasi EDA
-│   ├── 03_preprocessing.R    # Seleksi variabel, missing value, outlier
-│   ├── 04_model_lm.R         # Regresi Linear dan diagnostik VIF/residual
-│   ├── 05_model_rf.R         # Random Forest dan feature importance
-│   ├── 06_evaluation.R       # Repeated k-fold CV, residual, dan perbandingan model
-│   └── run_all.R             # Menjalankan seluruh pipeline
-├── output/
-│   ├── figures/              # Grafik hasil analisis
-│   ├── models/               # Model RDS
-│   └── tables/               # Tabel metrik dan ringkasan
-└── report/
-    └── laporan_kemiskinan_jatim.Rmd
-```
+- `data/raw/`: CSV BPS; `data/processed/`: dataset gabungan dan modeling.
+- `scripts/run_all.R`: pipeline impor → EDA → preprocessing → model → evaluasi awal → nested CV dan baseline.
+- `scripts/validation.R`: pemeriksaan kualitas data dan evaluasi nested; `tests/test_validation.R`: pengujian fungsi tersebut.
+- `output/figures/`, `output/models/`, `output/tables/`: artefak hasil; `report/`: laporan Rmd dan HTML.
+- `renv.lock`: versi R dan dependensi R; `renv/library/` lokal tidak di-commit.
 
 ## Cara Menjalankan
 
-Package utama yang digunakan: `readr`, `dplyr`, `ggplot2`, `tidyr`, `tibble`, `randomForest`, `caret`, `corrplot`, `MLmetrics`, `car`, `rmarkdown`.
+Prasyarat R 4.1+ (base pipe `|>`); lockfile dibuat dengan R 4.6.0. Jalankan dari root repo:
 
-Library lokal `renv/library` tidak disertakan dalam repository. Install package R yang diperlukan, lalu jalankan dari direktori project:
-
-```r
-install.packages(c("readr", "dplyr", "ggplot2", "tidyr", "tibble", "randomForest", "caret", "corrplot", "MLmetrics", "car", "rmarkdown"))
-source("scripts/run_all.R")
-rmarkdown::render("report/laporan_kemiskinan_jatim.Rmd", output_format = "html_document")
+```sh
+Rscript -e 'install.packages("renv")' # jika renv belum terpasang
+Rscript -e 'renv::restore(prompt = FALSE)'
+Rscript tests/test_validation.R
+Rscript scripts/run_all.R
+Rscript -e 'rmarkdown::render("report/laporan_kemiskinan_jatim.Rmd", output_format = "html_document")'
 ```
 
-Output HTML akan tersimpan di `report/laporan_kemiskinan_jatim.html`.
+Paket inti: `readr`, `dplyr`, `ggplot2`, `tidyr`, `tibble`, `randomForest`, `caret`, `corrplot`, `MLmetrics`, `car`, `rmarkdown`. Laporan menjalankan ulang pipeline saat dirender.
 
-Output utama:
+## Keterbatasan dan Saran Berikutnya
 
-- `data/processed/dataset_final.csv`
-- `output/tables/model_comparison.csv`
-- `output/tables/cv_metric_summary.csv`
-- `output/tables/lm_vif.csv`
-- `output/tables/model_outliers.csv`
-- `output/figures/prediksi_vs_aktual.png`
-- `output/figures/residual_vs_prediksi.png`
-- `output/figures/lm_qq_residual.png`
-- `output/figures/lm_scale_location.png`
-
-## Catatan Metodologis
-
-Dataset berisi 38 observasi kabupaten/kota untuk satu tahun. Karena ukuran sampel kecil, evaluasi utama menggunakan repeated 5-fold cross-validation, bukan hanya split 80/20. Hasil model harus dibaca sebagai kemampuan prediktif pada data yang tersedia, bukan bukti sebab-akibat.
-
-Feature importance Random Forest menunjukkan variabel yang paling membantu prediksi, bukan variabel yang pasti menyebabkan kemiskinan.
+- Tuning `mtry` dan pelaporan CV awal memakai fold yang sama; gunakan hasil nested untuk estimasi internal yang lebih hati-hati. Fold repeated CV saling berkorelasi sehingga interval kepercayaan naif di `cv_metric_summary.csv` tidak boleh dianggap bukti generalisasi.
+- Evaluasi temporal eksternal memerlukan data tahun lain dan belum dilakukan; jangan menyamakan prediksi dengan hubungan sebab-akibat. IPM dan rata-rata lama sekolah juga mungkin berkorelasi.
+- Validasi data menolak wilayah duplikat, kolom/angka hilang, target di luar 0–100, dan jumlah wilayah yang bukan 38. Periksa ulang kesesuaian snapshot CSV dengan seri BPS saat memperbarui data.
