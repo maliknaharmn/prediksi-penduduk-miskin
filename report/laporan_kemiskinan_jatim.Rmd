@@ -1,0 +1,228 @@
+---
+title: "Model Prediksi Persentase Penduduk Miskin Kabupaten/Kota di Jawa Timur 2023"
+author: "Muhammad Malik Nahar"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    number_sections: true
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = "center")
+options(scipen = 999, digits = 4)
+project_root <- normalizePath(file.path(dirname(normalizePath(knitr::current_input())), ".."), mustWork = TRUE)
+knitr::opts_knit$set(root.dir = project_root)
+if (dir.exists(file.path(project_root, "renv/library"))) {
+  .libPaths(c(normalizePath(file.path(project_root, "renv/library")), .libPaths()))
+}
+```
+
+## Ringkasan Eksekutif
+
+Laporan ini membangun model prediksi persentase penduduk miskin di 38 kabupaten/kota Jawa Timur tahun 2023 menggunakan Regresi Linear dan Random Forest. Karena data bersifat cross-sectional dan terbatas, model dievaluasi menggunakan repeated 5-fold cross-validation dengan 10 kali pengulangan.
+
+**Temuan utama:**
+
+1. Rata-rata lama sekolah menjadi prediktor paling informatif dalam Random Forest.
+2. IPM dan kepadatan penduduk juga muncul sebagai prediktor penting.
+3. Random Forest menunjukkan performa prediktif lebih baik dibanding Regresi Linear pada evaluasi cross-validation.
+
+**Catatan etis:** hasil ini bersifat prediktif dan asosiatif, bukan bukti kausal. Feature importance menunjukkan kontribusi variabel terhadap prediksi model, bukan bukti bahwa variabel tersebut menyebabkan kemiskinan.
+
+## Sumber Data
+
+Data yang digunakan berasal dari publikasi Badan Pusat Statistik (BPS) untuk Provinsi Jawa Timur tahun 2023.
+
+- Persentase penduduk miskin menurut kabupaten/kota
+- Indeks Pembangunan Manusia (IPM)
+- Tingkat Pengangguran Terbuka (TPT)
+- PDRB per kapita atas dasar harga berlaku
+- Rata-rata lama sekolah penduduk 15 tahun ke atas
+- Persentase rumah tangga dengan akses sanitasi layak
+- Jumlah penduduk dan kepadatan penduduk
+
+Unit analisis adalah 38 kabupaten/kota di Jawa Timur. Baris agregat `Jawa Timur` dikeluarkan agar model hanya belajar dari unit kabupaten/kota.
+
+## Persiapan dan Organisasi Kode
+
+Pipeline analisis dijalankan melalui `scripts/run_all.R`. Script ini mengeksekusi seluruh tahapan secara berurutan:
+
+1. Import dan penggabungan data
+2. EDA dan visualisasi
+3. Preprocessing dan seleksi variabel
+4. Model Regresi Linear
+5. Model Random Forest
+6. Evaluasi model dan visualisasi performa
+
+```{r run-pipeline}
+source("scripts/run_all.R")
+```
+
+```{r data-preview}
+dataset <- readr::read_csv("data/processed/dataset_final.csv", show_col_types = FALSE)
+model_dataset <- readr::read_csv("data/processed/model_dataset.csv", show_col_types = FALSE)
+missing_summary <- readr::read_csv("output/tables/missing_summary.csv", show_col_types = FALSE)
+
+knitr::kable(head(dataset, 10), digits = 2, caption = "Cuplikan dataset final setelah penggabungan")
+knitr::kable(missing_summary, digits = 0, caption = "Ringkasan missing value per variabel")
+```
+
+Dataset final memiliki `r nrow(dataset)` observasi dan `r ncol(dataset)` kolom. Untuk modeling, PDRB per kapita diskalakan dari ribu rupiah menjadi juta rupiah agar koefisien Regresi Linear lebih mudah dibaca.
+
+## Analisis Eksploratif
+
+```{r descriptive-stats}
+descriptive_stats <- readr::read_csv("output/tables/descriptive_stats.csv", show_col_types = FALSE)
+knitr::kable(head(descriptive_stats, 24), digits = 2, caption = "Statistik deskriptif variabel numerik")
+```
+
+```{r figures-eda, echo=FALSE, out.width="85%", fig.cap="Distribusi target, wilayah dengan kemiskinan tertinggi, dan korelasi antarvariabel"}
+knitr::include_graphics(c(
+  "output/figures/distribusi_kemiskinan.png",
+  "output/figures/top_10_kemiskinan.png",
+  "output/figures/korelasi_variabel.png"
+))
+```
+
+Distribusi kemiskinan menunjukkan variasi antardaerah yang cukup jelas. Beberapa kabupaten memiliki persentase kemiskinan jauh lebih tinggi dibanding kota-kota besar. Pola ini memperlihatkan bahwa kemiskinan di Jawa Timur tidak merata secara spasial maupun sosial-ekonomi. Matriks korelasi membantu membaca asosiasi awal, terutama hubungan antara kemiskinan dengan indikator pembangunan manusia dan pendidikan, tetapi korelasi tersebut tidak ditafsirkan sebagai sebab-akibat.
+
+## Regresi Linear dan Diagnostik
+
+Regresi Linear digunakan sebagai baseline karena hasilnya mudah diinterpretasikan. Model ini berguna untuk membaca arah hubungan linear, tetapi asumsi model tetap perlu diperiksa.
+
+```{r lm-results}
+lm_coefficients <- readr::read_csv("output/tables/lm_coefficients.csv", show_col_types = FALSE)
+lm_vif <- readr::read_csv("output/tables/lm_vif.csv", show_col_types = FALSE)
+
+knitr::kable(lm_coefficients, digits = 3, caption = "Koefisien Regresi Linear")
+knitr::kable(lm_vif, digits = 2, caption = "Variance Inflation Factor (VIF) untuk pemeriksaan multikolinearitas")
+```
+
+VIF digunakan untuk melihat potensi multikolinearitas. Sebagai aturan praktis, VIF di atas 5 perlu diperhatikan dan VIF di atas 10 biasanya menunjukkan masalah serius. Karena beberapa indikator sosial-ekonomi saling berkaitan, hasil Regresi Linear sebaiknya digunakan sebagai interpretasi pendukung, bukan satu-satunya dasar keputusan.
+
+```{r lm-diagnostics, echo=FALSE, out.width="80%", fig.cap="Diagnostik asumsi Regresi Linear: normalitas residual dan homoskedastisitas"}
+knitr::include_graphics(c(
+  "output/figures/lm_qq_residual.png",
+  "output/figures/lm_scale_location.png"
+))
+```
+
+Q-Q plot membantu menilai apakah residual mendekati distribusi normal, sedangkan scale-location plot membantu melihat apakah variasi residual relatif stabil pada berbagai nilai fitted. Dengan jumlah observasi hanya 38, diagnostik ini dibaca secara hati-hati.
+
+## Random Forest dan Feature Importance
+
+Random Forest digunakan untuk menangkap hubungan non-linear dan interaksi antarvariabel yang mungkin tidak tertangkap oleh Regresi Linear. Tuning dilakukan pada parameter `mtry`, sedangkan jumlah pohon ditetapkan 500.
+
+```{r rf-importance}
+rf_importance <- readr::read_csv("output/tables/rf_feature_importance.csv", show_col_types = FALSE)
+rf_importance <- rf_importance |>
+  dplyr::mutate(share = importance / sum(importance))
+top3_share <- sum(head(rf_importance$share, 3))
+
+knitr::kable(rf_importance, digits = 3, caption = "Feature importance Random Forest berbasis permutation importance")
+```
+
+```{r rf-importance-plot, echo=FALSE, out.width="85%", fig.cap="Feature importance Random Forest"}
+knitr::include_graphics("output/figures/feature_importance_rf.png")
+```
+
+Rata-rata lama sekolah muncul sebagai prediktor paling informatif, diikuti oleh IPM dan kepadatan penduduk. Tiga variabel teratas menyumbang sekitar `r scales::percent(top3_share, accuracy = 0.1)` dari total importance relatif pada model ini. Secara substantif, temuan ini menunjukkan bahwa dimensi pendidikan, pembangunan manusia, dan karakteristik kepadatan wilayah sangat membantu model dalam memprediksi tingkat kemiskinan. Namun, importance ini tetap bukan bukti kausal.
+
+## Evaluasi Model
+
+### Perbandingan Performa Model
+
+```{r model-comparison}
+model_comparison <- readr::read_csv("output/tables/model_comparison.csv", show_col_types = FALSE)
+comparison_wide <- model_comparison |>
+  dplyr::select(model, rmse, mae, r2) |>
+  tidyr::pivot_longer(-model, names_to = "metric", values_to = "value") |>
+  tidyr::pivot_wider(names_from = model, values_from = value) |>
+  dplyr::mutate(metric = toupper(metric))
+
+knitr::kable(comparison_wide, digits = 3, caption = "Perbandingan performa model berdasarkan repeated 5-fold cross-validation")
+```
+
+```{r comparison-plot, echo=FALSE, out.width="85%", fig.cap="Perbandingan RMSE, MAE, dan R² antar model"}
+knitr::include_graphics("output/figures/perbandingan_model.png")
+```
+
+Model dengan RMSE dan MAE lebih kecil memiliki error prediksi yang lebih rendah. Pada eksperimen ini, Random Forest memiliki RMSE dan MAE lebih kecil serta R² lebih tinggi dibanding Regresi Linear.
+
+### Detail Cross-Validation
+
+```{r cv-details}
+cv_metric_summary <- readr::read_csv("output/tables/cv_metric_summary.csv", show_col_types = FALSE)
+knitr::kable(cv_metric_summary, digits = 3, caption = "Ringkasan metrik cross-validation per resample")
+```
+
+Tabel di atas menunjukkan rata-rata, standar deviasi, dan confidence interval sederhana untuk RMSE dan MAE berdasarkan resample cross-validation. Nilai ini memberi gambaran stabilitas performa, meskipun confidence interval tetap harus dibaca hati-hati karena resample cross-validation tidak sepenuhnya independen.
+
+### Visualisasi Prediksi vs Aktual
+
+```{r prediction-plots, echo=FALSE, out.width="85%", fig.cap="Prediksi vs aktual dan residual out-of-fold"}
+knitr::include_graphics(c(
+  "output/figures/prediksi_vs_aktual.png",
+  "output/figures/residual_vs_prediksi.png"
+))
+```
+
+Scatter plot prediksi vs aktual memperlihatkan seberapa dekat prediksi model terhadap nilai sebenarnya. Residual plot membantu melihat apakah terdapat pola error sistematis. Titik yang jauh dari garis ideal atau memiliki residual besar perlu diperiksa sebagai wilayah yang sulit diprediksi oleh model.
+
+### Analisis Outlier Prediksi
+
+```{r outlier-analysis}
+model_outliers <- readr::read_csv("output/tables/model_outliers.csv", show_col_types = FALSE)
+knitr::kable(model_outliers, digits = 3, caption = "Lima wilayah dengan residual cross-validation terbesar per model")
+```
+
+Wilayah dengan residual besar menunjukkan kasus yang tidak sepenuhnya dijelaskan oleh variabel yang tersedia. Ini dapat menjadi titik awal analisis lanjutan, misalnya dengan menambahkan variabel struktur ekonomi lokal, belanja sosial, harga pangan, atau indikator spasial.
+
+## Rekomendasi Model
+
+```{r conclusion-values, echo=FALSE}
+best_model <- model_comparison[which.min(model_comparison$rmse), ]
+rf_row <- model_comparison[model_comparison$model == "Random Forest", ]
+lm_row <- model_comparison[model_comparison$model == "Regresi Linear", ]
+```
+
+Berdasarkan repeated 5-fold cross-validation, model terbaik pada eksperimen ini adalah **`r best_model$model`** dengan RMSE `r round(best_model$rmse, 3)`, MAE `r round(best_model$mae, 3)`, dan R² `r round(best_model$r2, 3)`.
+
+Untuk tujuan prediksi, Random Forest lebih direkomendasikan karena menangkap hubungan non-linear dan menghasilkan performa lebih baik. Untuk tujuan interpretasi arah hubungan, Regresi Linear tetap berguna sebagai model pendamping karena koefisiennya lebih mudah dijelaskan. Dengan kata lain, Random Forest digunakan untuk prioritas prediktif, sedangkan Regresi Linear digunakan untuk pemahaman awal yang lebih transparan.
+
+## Rekomendasi Kebijakan Berbasis Data
+
+Rekomendasi berikut disusun dari variabel yang paling informatif dalam model dan tetap dibaca sebagai prioritas eksploratif.
+
+1. Prioritaskan peningkatan pendidikan dan rata-rata lama sekolah di wilayah yang masih tertinggal.
+2. Perkuat pembangunan manusia lintas sektor, terutama pada wilayah dengan IPM rendah.
+3. Gunakan kepadatan penduduk sebagai konteks desain program, karena kebutuhan kota padat dan kabupaten rural dapat berbeda.
+4. Integrasikan pemantauan kemiskinan dengan indikator ekonomi dan ketenagakerjaan, tetapi hindari menjadikan satu indikator sebagai penjelasan tunggal.
+5. Lakukan pendalaman kualitatif atau studi lokal pada wilayah dengan residual besar, karena wilayah tersebut mungkin memiliki faktor spesifik yang belum tertangkap data.
+
+## Keterbatasan
+
+1. **Keterbatasan data:** hanya 38 observasi, sehingga kompleksitas model dan kekuatan statistik terbatas.
+2. **Desain cross-sectional:** data hanya satu tahun, sehingga tidak dapat menangkap dinamika waktu atau tren.
+3. **Tidak kausal:** model hanya mengidentifikasi asosiasi dan pola prediktif, bukan hubungan sebab-akibat.
+4. **Variabel terbatas:** model hanya memakai indikator yang tersedia dari data publik; masih mungkin ada omitted variable bias.
+5. **Generalisasi terbatas:** hasil spesifik untuk Jawa Timur tahun 2023 dan belum tentu berlaku untuk provinsi atau tahun lain.
+6. **Dependensi spasial:** kabupaten/kota berdekatan mungkin saling memengaruhi, tetapi model belum memasukkan autokorelasi spasial.
+
+## Tindak Lanjut
+
+1. Perbarui dataset dengan tahun 2024 dan tahun-tahun berikutnya untuk membangun data panel.
+2. Uji algoritma lain seperti XGBoost atau Gradient Boosting sebagai pembanding.
+3. Tambahkan analisis spasial untuk melihat pengaruh wilayah tetangga.
+4. Tambahkan feature engineering, misalnya interaksi pendidikan dan kepadatan penduduk.
+5. Tambahkan variabel kebijakan dan ekonomi lokal seperti belanja sosial, inflasi, harga pangan, dan struktur pekerjaan.
+
+## Kesimpulan
+
+Pipeline berhasil menggabungkan tujuh sumber data BPS, membersihkan dataset, melakukan EDA, membangun Regresi Linear dan Random Forest, mengevaluasi model dengan repeated cross-validation, serta menghasilkan interpretasi feature importance dan rekomendasi kebijakan. Hasil terbaik diperoleh Random Forest, tetapi seluruh temuan tetap ditempatkan secara etis sebagai bukti prediktif, bukan klaim kausal.
+
