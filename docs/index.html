@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111d32">
+  <meta name="description" content="Studi pemodelan persentase penduduk miskin pada 38 kabupaten/kota Jawa Timur tahun 2023. Data BPS, Regresi Linear, Random Forest, dan evaluasi nested cross-validation.">
+  <title>Prediksi Kemiskinan Jawa Timur 2023 — Malik Nahar</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111d32'/%3E%3Cpath d='M13 45V30h8v15zm15 0V19h8v26zm15 0V25h8v20z' fill='%23aee7cc'/%3E%3C/svg%3E">
+  <style>
+    :root { color-scheme: light; --ink:#14213a; --muted:#58677d; --navy:#111d32; --line:#dbe2e9; --paper:#f7f9fb; --mint:#aee7cc; --blue:#365e9a; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--paper); font:400 1rem/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    a { color:inherit; text-underline-offset:3px; }
+    a:focus-visible { outline:3px solid #68b5e6; outline-offset:4px; border-radius:3px; }
+    .skip { position:absolute; left:-9999px; top:1rem; z-index:10; padding:.5rem 1rem; background:white; }
+    .skip:focus { left:1rem; }
+    .wrap { width:min(1120px,calc(100% - 3rem)); margin-inline:auto; }
+    .hero { position:relative; overflow:hidden; color:white; background:var(--navy); }
+    .hero:before { content:""; position:absolute; inset:0; pointer-events:none; opacity:.22; background-image:linear-gradient(to right,transparent calc(100% - 1px),#7890aa 1px),linear-gradient(to bottom,transparent calc(100% - 1px),#7890aa 1px); background-size:64px 64px; mask-image:linear-gradient(to right,transparent 5%,black 100%); }
+    .hero:after { content:""; position:absolute; width:38rem; height:38rem; right:-18rem; top:-20rem; background:radial-gradient(circle,#3d806f66 0,transparent 65%); pointer-events:none; }
+    header { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1.5rem 0; border-bottom:1px solid #ffffff29; }
+    .brand { text-decoration:none; font-weight:750; letter-spacing:-.035em; font-size:1.05rem; }
+    .brand span { color:var(--mint); }
+    nav { display:flex; gap:1.6rem; flex-wrap:wrap; font-size:.9rem; color:#dae6f0; }
+    nav a { text-decoration:none; }
+    nav a:hover { color:var(--mint); }
+    .hero-inner { position:relative; z-index:1; display:grid; grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr); gap:4rem; align-items:end; padding:6.5rem 0 5.5rem; }
+    .eyebrow { margin:0 0 1.3rem; color:var(--mint); text-transform:uppercase; letter-spacing:.16em; font-size:.8rem; font-weight:750; }
+    h1 { max-width:780px; margin:0; font-size:clamp(2.8rem,6vw,5.2rem); line-height:1.06; letter-spacing:-.065em; font-weight:750; }
+    h1 em { color:var(--mint); font-style:normal; }
+    .lead { max-width:680px; margin:1.8rem 0 0; color:#d0dce8; font-size:clamp(1.05rem,1.7vw,1.22rem); line-height:1.65; }
+    .actions { display:flex; flex-wrap:wrap; gap:.8rem; margin-top:2rem; }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:.75rem 1.2rem; border:1px solid #ffffff70; border-radius:5px; text-decoration:none; font-weight:650; font-size:.93rem; }
+    .button.primary { color:var(--navy); background:var(--mint); border-color:var(--mint); }
+    .button:hover { transform:translateY(-2px); }
+    .hero-card { background:#24344d; border:1px solid #91abc04a; border-radius:10px; padding:1.7rem; box-shadow:0 24px 70px #0000003a; }
+    .hero-card .label { display:block; color:#b8cadb; font-size:.82rem; letter-spacing:.08em; text-transform:uppercase; }
+    .hero-card strong { display:block; margin:.2rem 0 .1rem; font-size:clamp(3rem,5vw,4.4rem); letter-spacing:-.06em; line-height:1.15; color:var(--mint); }
+    .hero-card p { margin:.2rem 0 1.7rem; color:#d3deeb; font-size:.92rem; }
+    .hero-card dl { display:grid; grid-template-columns:1fr 1fr; gap:1rem; border-top:1px solid #ffffff35; padding-top:1.2rem; margin:0; }
+    .hero-card dt { color:#b8cadb; font-size:.8rem; }
+    .hero-card dd { margin:0; font-weight:700; font-size:1.18rem; }
+    main section { padding:5.5rem 0; border-bottom:1px solid var(--line); }
+    .section-head { max-width:760px; margin-bottom:2.6rem; }
+    .kicker { margin:0 0 .8rem; color:var(--blue); font-size:.78rem; letter-spacing:.15em; text-transform:uppercase; font-weight:800; }
+    h2 { margin:0; font-size:clamp(2rem,3.7vw,3.2rem); line-height:1.17; letter-spacing:-.05em; }
+    .section-head p { color:var(--muted); font-size:1.07rem; margin:1rem 0 0; }
+    .facts { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .fact { padding:1.5rem; border:1px solid var(--line); background:white; border-radius:7px; }
+    .fact b { display:block; font-size:2.4rem; letter-spacing:-.06em; line-height:1.1; }
+    .fact span { display:block; margin-top:.6rem; color:var(--muted); }
+    .split { display:grid; grid-template-columns:.85fr 1.15fr; gap:4rem; align-items:start; }
+    .copy { color:var(--muted); }
+    .copy p:first-child { margin-top:0; }
+    .pills { display:flex; flex-wrap:wrap; gap:.55rem; margin-top:1.6rem; }
+    .pills span { background:#e7eef5; color:#28486b; border-radius:100px; padding:.38rem .8rem; font-size:.85rem; font-weight:650; }
+    .table-card { background:white; border:1px solid var(--line); border-radius:8px; overflow-x:auto; }
+    table { border-collapse:collapse; width:100%; min-width:540px; text-align:left; font-variant-numeric:tabular-nums; }
+    th,td { padding:1rem 1.2rem; border-bottom:1px solid var(--line); }
+    th { color:var(--muted); font-size:.78rem; letter-spacing:.09em; text-transform:uppercase; background:#f2f6f9; }
+    tr:last-child td { border-bottom:0; }
+    td:not(:first-child),th:not(:first-child) { text-align:right; }
+    .highlight td { background:#ecf8f3; font-weight:750; }
+    .note { color:var(--muted); font-size:.9rem; margin:1rem 0 0; }
+    .visual-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+    figure { margin:0; background:white; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+    figure img { display:block; width:100%; height:auto; }
+    figcaption { padding:1rem 1.2rem 1.25rem; border-top:1px solid var(--line); color:var(--muted); font-size:.9rem; }
+    figure.wide { grid-column:1/-1; }
+    figure.wide img { max-width:840px; margin:auto; }
+    .method { display:grid; grid-template-columns:repeat(3,1fr); gap:1.2rem; }
+    .method article { border-top:3px solid var(--blue); padding:1.2rem 0 0; }
+    .method .num { color:var(--blue); font-weight:800; font-size:.85rem; letter-spacing:.1em; }
+    h3 { font-size:1.25rem; line-height:1.25; letter-spacing:-.025em; margin:.7rem 0; }
+    .method p { color:var(--muted); margin:.5rem 0 0; }
+    .closing { background:#eaf1f5; border-bottom:0; }
+    .closing .split { align-items:center; }
+    .closing a { color:#1f548c; font-weight:700; }
+    footer { background:var(--navy); color:#c9d8e6; padding:2rem 0; }
+    footer .wrap { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; font-size:.9rem; }
+    footer a { color:white; }
+    @media (max-width:800px) {
+      .hero-inner,.split { grid-template-columns:1fr; gap:2.5rem; }
+      .hero-inner { padding:4.5rem 0; }
+      .hero-card { max-width:450px; }
+      .facts,.method { grid-template-columns:1fr; }
+      .visual-grid { grid-template-columns:1fr; }
+      figure.wide { grid-column:auto; }
+    }
+    @media (max-width:560px) {
+      .wrap { width:min(100% - 2rem,1120px); }
+      header { align-items:flex-start; flex-direction:column; }
+      nav { gap:1rem; }
+      main section { padding:4rem 0; }
+      .fact b { font-size:2rem; }
+    }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } .button:hover { transform:none; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#konten">Lewati navigasi</a>
+  <div class="hero">
+    <div class="wrap">
+      <header>
+        <a class="brand" href="#atas">Malik Nahar<span> / Data Project</span></a>
+        <nav aria-label="Navigasi utama">
+          <a href="#data">Data</a>
+          <a href="#hasil">Hasil</a>
+          <a href="#visualisasi">Visualisasi</a>
+          <a href="#metode">Metode</a>
+        </nav>
+      </header>
+      <div class="hero-inner" id="atas">
+        <div>
+          <p class="eyebrow">Studi kasus · Jawa Timur · 2023</p>
+          <h1>Membaca pola <em>kemiskinan</em> lewat data wilayah.</h1>
+          <p class="lead">Model prediksi persentase penduduk miskin pada 38 kabupaten/kota, menggunakan enam indikator BPS. Regresi Linear dan Random Forest dibandingkan melalui validasi silang dengan tuning terpisah.</p>
+          <div class="actions">
+            <a class="button primary" href="#hasil">Lihat hasil evaluasi</a>
+            <a class="button" href="https://github.com/maliknaharmn/prediksi-penduduk-miskin">Buka repositori ↗</a>
+          </div>
+        </div>
+        <aside class="hero-card" aria-label="Ringkasan hasil Random Forest">
+          <span class="label">Random Forest · nested CV</span>
+          <strong>2,674</strong>
+          <p>RMSE dalam poin persentase, dari prediksi pada fold luar.</p>
+          <dl>
+            <div><dt>MAE</dt><dd>2,137 pp</dd></div>
+            <div><dt>R²</dt><dd>0,607</dd></div>
+          </dl>
+        </aside>
+      </div>
+    </div>
+  </div>
+  <main id="konten">
+    <section id="data">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">01 / Pertanyaan dan data</p>
+          <h2>Seberapa baik indikator wilayah memprediksi persentase penduduk miskin?</h2>
+          <p>Targetnya adalah persentase penduduk miskin pada Maret 2023, bukan garis kemiskinan dalam rupiah. Setiap observasi mewakili satu kabupaten atau kota di Jawa Timur.</p>
+        </div>
+        <div class="facts">
+          <div class="fact"><b>38</b><span>kabupaten/kota; agregat provinsi dikeluarkan</span></div>
+          <div class="fact"><b>6</b><span>prediktor dari tabel BPS</span></div>
+          <div class="fact"><b>2023</b><span>satu tahun data lintas wilayah</span></div>
+        </div>
+        <div class="split" style="margin-top:3rem">
+          <div class="copy">
+            <p>Data mentah dari tujuh tabel BPS digabung berdasarkan wilayah. PDRB per kapita dikonversi dari ribu menjadi juta rupiah sebelum pemodelan.</p>
+            <p>Definisi, satuan, serta tautan sumber resmi tiap variabel tersedia dalam <a href="https://github.com/maliknaharmn/prediksi-penduduk-miskin#data-dan-variabel">README repositori</a>.</p>
+          </div>
+          <div>
+            <h3>Enam prediktor</h3>
+            <div class="pills" aria-label="Daftar prediktor">
+              <span>Indeks Pembangunan Manusia</span><span>Pengangguran terbuka</span><span>PDRB per kapita</span><span>Rata-rata lama sekolah</span><span>Sanitasi layak</span><span>Kepadatan penduduk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="hasil">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">02 / Evaluasi</p>
+          <h2>Random Forest mencatat error paling rendah dalam evaluasi internal.</h2>
+          <p>Nested cross-validation memisahkan pemilihan parameter pada fold dalam dari penilaian pada fold luar. Baseline selalu memakai rerata target pada data latih fold tersebut.</p>
+        </div>
+        <div class="table-card">
+          <table>
+            <thead><tr><th scope="col">Model · nested CV</th><th scope="col">RMSE ↓</th><th scope="col">MAE ↓</th><th scope="col">R² ↑</th></tr></thead>
+            <tbody>
+              <tr><td>Rerata data latih</td><td>4,286</td><td>3,326</td><td>−0,010</td></tr>
+              <tr><td>Regresi Linear</td><td>3,306</td><td>2,525</td><td>0,399</td></tr>
+              <tr class="highlight"><td>Random Forest</td><td>2,674</td><td>2,137</td><td>0,607</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">RMSE dan MAE dalam poin persentase. Angka berasal dari <a href="https://github.com/maliknaharmn/prediksi-penduduk-miskin/blob/main/output/tables/nested_cv_summary.csv">nested_cv_summary.csv</a>; hasil ini adalah estimasi internal, bukan uji pada tahun lain.</p>
+      </div>
+    </section>
+    <section id="visualisasi">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">03 / Grafik proyek</p>
+          <h2>Dari perbandingan model ke perilaku prediksinya.</h2>
+          <p>Grafik berikut adalah artefak analisis yang tersimpan di repositori. Grafik evaluasi berasal dari repeated 5-fold CV × 10; nilainya berbeda dari tabel nested CV di atas.</p>
+        </div>
+        <div class="visual-grid">
+          <figure>
+            <img src="assets/perbandingan_model.png" width="2700" height="1500" loading="lazy" alt="Grafik batang perbandingan RMSE, MAE, dan R kuadrat Regresi Linear dengan Random Forest pada repeated cross-validation.">
+            <figcaption>Perbandingan RMSE, MAE, dan R² pada repeated CV. Pemilihan parameter RF dan pelaporan di jalur ini memakai resampling yang sama.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/prediksi_vs_aktual.png" width="2700" height="1500" loading="lazy" alt="Diagram sebar prediksi dan nilai aktual persentase miskin dari dua model pada repeated cross-validation.">
+            <figcaption>Prediksi <em>out-of-fold</em> terhadap nilai aktual pada repeated CV; tiap wilayah muncul pada beberapa pengulangan.</figcaption>
+          </figure>
+          <figure class="wide">
+            <img src="assets/feature_importance_rf.png" width="2400" height="1500" loading="lazy" alt="Grafik permutation importance enam prediktor Random Forest, dipimpin rata-rata lama sekolah, IPM, dan kepadatan penduduk.">
+            <figcaption>Permutation importance pada model RF akhir. Rata-rata lama sekolah, IPM, dan kepadatan penduduk berada di urutan atas; ini bukan bukti pengaruh kausal.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+    <section id="metode">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">04 / Alur kerja</p>
+          <h2>Pipeline yang bisa diperiksa dan dijalankan ulang.</h2>
+        </div>
+        <div class="method">
+          <article><span class="num">01 — DATA</span><h3>Gabungkan dan validasi</h3><p>Tujuh CSV BPS digabung menurut nama wilayah. Pipeline memeriksa 38 baris, nilai hilang, wilayah duplikat, dan rentang target.</p></article>
+          <article><span class="num">02 — MODEL</span><h3>Bandingkan dua pendekatan</h3><p>Regresi Linear menjadi pembanding; Random Forest memakai 500 pohon dengan pencarian <code>mtry</code> dari 2 sampai 6.</p></article>
+          <article><span class="num">03 — UJI</span><h3>Pisahkan tuning dan evaluasi</h3><p>Nested CV menggunakan 5 fold luar dan 3 fold dalam. Repeated CV × 10 tersedia sebagai analisis awal dan sumber grafik.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="closing">
+      <div class="wrap split">
+        <div>
+          <p class="kicker">Batas interpretasi</p>
+          <h2>Prediksi adalah titik awal, bukan kesimpulan kebijakan.</h2>
+        </div>
+        <div class="copy">
+          <p>Hanya 38 observasi dan satu tahun data yang digunakan. Belum ada pengujian eksternal lintas waktu atau validasi spasial. Indikator yang saling berkaitan, seperti IPM dan lama sekolah, membuat interpretasi pengaruh masing-masing variabel perlu hati-hati.</p>
+          <p>Seluruh kode, data snapshot, laporan R Markdown, dan tabel evaluasi tersedia di <a href="https://github.com/maliknaharmn/prediksi-penduduk-miskin">repositori proyek ↗</a>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer><div class="wrap"><span>© 2026 Muhammad Malik Nahar · Studi kasus data science</span><a href="https://github.com/maliknaharmn/prediksi-penduduk-miskin">Kode dan laporan di GitHub ↗</a></div></footer>
+</body>
+</html>
