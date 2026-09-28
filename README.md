@@ -2,6 +2,8 @@
 
 **Analisis data BPS untuk 38 kabupaten/kota · R · Regresi Linear · Random Forest**
 
+**Situs proyek:** [maliknaharmn.github.io/prediksi-penduduk-miskin](https://maliknaharmn.github.io/prediksi-penduduk-miskin/)
+
 Proyek ini membandingkan model untuk memperkirakan **persentase penduduk miskin** pada tingkat kabupaten/kota di Jawa Timur tahun 2023. Target tersebut adalah proporsi penduduk miskin (%), **bukan garis kemiskinan** (rupiah). Fokus proyek mencakup penggabungan tujuh tabel BPS, pemeriksaan data, analisis eksploratif, pemodelan, dan evaluasi prediksi. Data satu tahun ini tidak mendukung klaim sebab-akibat atau ramalan untuk tahun berikutnya.
 
 ## Data dan variabel
