@@ -12,6 +12,14 @@ sample_data <- data.frame(
 )
 
 validate_model_data(sample_data, expected_rows = 38)
+expected_columns <- c(
+  "wilayah", "persentase_miskin", "ipm", "tpt", "pdrb_per_kapita_juta",
+  "rata_lama_sekolah", "sanitasi_layak", "kepadatan_penduduk"
+)
+actual_data <- read.csv("data/processed/model_dataset.csv", check.names = FALSE)
+stopifnot(identical(names(actual_data), expected_columns))
+validate_model_data(actual_data, expected_rows = 38)
+
 expect_error <- function(data, message) {
   err <- tryCatch({ validate_model_data(data, expected_rows = 38); NULL }, error = identity)
   stopifnot(inherits(err, "error"), grepl(message, conditionMessage(err)))
@@ -29,6 +37,11 @@ expect_error(sample_data[-1, ], "38")
 
 result <- evaluate_nested_cv(sample_data, k = 3, inner_k = 4, seed = 42, ntree = 10, mtry_grid = 1:2)
 stopifnot(nrow(result$predictions) == 3 * nrow(sample_data))
+for (model in unique(result$predictions$model)) {
+  row_indices <- result$predictions$row_index[result$predictions$model == model]
+  stopifnot(length(unique(row_indices)) == nrow(sample_data))
+  stopifnot(setequal(row_indices, seq_len(nrow(sample_data))))
+}
 stopifnot(setequal(result$summary$model, c("Rerata pelatihan", "Regresi Linear", "Random Forest")))
 stopifnot(all(is.finite(result$predictions$predicted)))
 stopifnot(all(is.finite(result$summary$rmse)))
