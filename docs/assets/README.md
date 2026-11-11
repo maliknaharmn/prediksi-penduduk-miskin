@@ -1,3 +1,5 @@
-# Grafik untuk GitHub Pages
+# Aset GitHub Pages
 
-Tiga gambar di folder ini adalah salinan dari `output/figures/` agar dapat ditampilkan oleh GitHub Pages ketika sumber situs diatur ke `/docs`. Grafik evaluasi menggambarkan repeated 5-fold CV × 10, bukan hasil nested CV.
+Empat grafik berasal dari output analisis di [output/figures](../../output/figures). Tiga grafik disalin sebagai WebP lossless dan grafik kepentingan prediktor tetap dalam format PNG. Grafik perbandingan model serta prediksi terhadap nilai aktual menggunakan repeated 5-fold CV × 10.
+
+Lisensi untuk jalur SVG gelombang yang diadaptasi dari Jeffrey Bennett tersedia di [waves-LICENSE.txt](waves-LICENSE.txt).
