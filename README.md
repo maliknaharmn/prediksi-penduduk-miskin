@@ -1,10 +1,12 @@
-# Prediksi Persentase Penduduk Miskin di Jawa Timur (2023)
+# Prediksi Kemiskinan Jawa Timur — Regresi Linear vs. Random Forest
 
-**Analisis data BPS untuk 38 kabupaten/kota · R · Regresi Linear · Random Forest**
+**Data BPS 2023 · 38 kabupaten dan kota · Analisis dengan R**
 
-**Situs proyek:** [maliknaharmn.github.io/prediksi-penduduk-miskin](https://maliknaharmn.github.io/prediksi-penduduk-miskin/)
+[Lihat studi kasus dan grafik](https://maliknaharmn.github.io/prediksi-penduduk-miskin/)
 
-Proyek ini membandingkan model untuk memperkirakan **persentase penduduk miskin** pada tingkat kabupaten/kota di Jawa Timur tahun 2023. Target tersebut adalah proporsi penduduk miskin (%), **bukan garis kemiskinan** (rupiah). Fokus proyek mencakup penggabungan tujuh tabel BPS, pemeriksaan data, analisis eksploratif, pemodelan, dan evaluasi prediksi. Data satu tahun ini tidak mendukung klaim sebab-akibat atau ramalan untuk tahun berikutnya.
+Studi ini menguji seberapa dekat perkiraan **Regresi Linear** dan **Random Forest** dengan **persentase penduduk miskin** yang dicatat BPS pada Maret 2023 di 38 kabupaten dan kota di Jawa Timur. Targetnya adalah proporsi penduduk miskin dalam persen.
+
+Analisis menggabungkan tujuh tabel BPS dan menggunakan enam indikator wilayah untuk menguji kedua model. Random Forest mencatat kesalahan prediksi terendah dalam evaluasi internal. Hasilnya terbatas pada data 2023.
 
 ## Data dan variabel
 
