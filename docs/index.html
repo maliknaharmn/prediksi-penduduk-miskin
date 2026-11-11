@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#101e30">
-  <meta name="description" content="Studi pemodelan persentase penduduk miskin pada 38 kabupaten/kota Jawa Timur tahun 2023. Data BPS, Regresi Linear, Random Forest, dan evaluasi nested cross-validation.">
-  <title>Prediksi Kemiskinan Jawa Timur 2023 — Malik Nahar</title>
+  <meta name="description" content="Perbandingan Regresi Linear dan Random Forest untuk memperkirakan persentase penduduk miskin di 38 kabupaten dan kota di Jawa Timur pada 2023 berdasarkan data BPS.">
+  <title>Prediksi Kemiskinan Jawa Timur — Regresi Linear vs. Random Forest</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101e30'/%3E%3Cpath d='M13 45V30h8v15zm15 0V19h8v26zm15 0V25h8v20z' fill='%23b0ead1'/%3E%3C/svg%3E">
   <style>
     :root {
@@ -63,6 +63,14 @@
     h1, h2, h3 { font-weight: 720; line-height: 1.09; }
     h1 { font-size: var(--display); line-height: .99; letter-spacing: -.065em; }
     h1 span { display: block; }
+    .hero-comparison {
+      margin-top: clamp(.7rem, 2vw, 1.1rem);
+      color: var(--mint);
+      font-size: clamp(1rem, 2.2vw, 1.5rem);
+      font-weight: 650;
+      line-height: 1.25;
+      letter-spacing: -.025em;
+    }
     h2 { font-size: var(--heading); letter-spacing: -.052em; text-wrap: balance; }
     h3 { font-size: var(--lead); letter-spacing: -.025em; }
     p + p { margin-top: .9rem; }
@@ -426,8 +434,11 @@
 
     <div class="hero-content wrap">
       <div class="hero-copy">
-        <h1 data-reveal><span>Kemiskinan</span> <span>Jawa Timur</span></h1>
-        <p data-reveal>Prediksi persentase penduduk miskin pada 38 kabupaten dan kota tahun 2023, menggunakan enam indikator BPS.</p>
+        <h1 data-reveal>
+          <span class="hero-title"><span>Prediksi</span> <span>kemiskinan</span></span>
+          <span class="hero-comparison">Regresi Linear vs. Random Forest</span>
+        </h1>
+        <p data-reveal>Studi ini menggunakan data BPS untuk menguji kemampuan kedua model memperkirakan persentase penduduk miskin di 38 kabupaten dan kota di Jawa Timur pada 2023.</p>
         <div class="actions" data-reveal>
           <a class="primary" href="#hasil">Lihat hasil evaluasi</a>
           <a class="repo-link" href="https://github.com/maliknaharmn/prediksi-penduduk-miskin">Buka repositori</a>
