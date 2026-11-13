@@ -125,7 +125,13 @@
       to { transform: translateX(var(--wave-end)); }
     }
 
-    .masthead, .context-bar { border-bottom: 1px solid var(--line); }
+    .masthead {
+      --header-gutter: 36px;
+      --header-line: color-mix(in srgb, var(--paper) 81%, var(--ink));
+      border-bottom: 1px solid var(--header-line);
+    }
+    .masthead .wrap { width: min(100% - 2 * var(--header-gutter), 1200px); }
+    .context-bar { border-top: 1px solid var(--header-line); }
     .site-header, .context-row {
       display: flex;
       justify-content: space-between;
@@ -133,7 +139,7 @@
       gap: .4rem 1.25rem;
       flex-wrap: wrap;
     }
-    .site-header { min-height: 65px; }
+    .site-header { min-height: 65px; gap: 0 14px; font-size: 16px; line-height: 1.55; }
     .context-row { min-height: 53px; color: var(--muted); font: 400 13px/1.45 var(--mono); }
     .brand {
       gap: 9px;
@@ -151,8 +157,12 @@
       align-items: center;
       min-height: 2.75rem;
     }
-    .nav a { text-decoration: none; font-size: var(--small); }
-    .nav a:hover { color: #742318; text-decoration: underline; }
+    .site-header .brand { min-height: 0; }
+    .site-header .nav { gap: 0 23px; }
+    .context-row .nav { gap: 0 18px; }
+    .nav a { gap: 4px; text-decoration: none; }
+    .nav a:hover, .site-header .brand:hover { color: #742318; }
+    .site-header .nav svg { flex: none; }
     .context-row .nav a { font-size: inherit; }
 
     .hero-content {
@@ -401,6 +411,9 @@
     @media (max-width: 1100px) {
       :root { --display: 4rem; }
     }
+    @media (max-width: 1010px) {
+      .masthead { --header-gutter: 28px; }
+    }
     @media (max-width: 900px) {
       :root { --display: 3.25rem; --heading: 2.25rem; }
       .hero { min-height: min(37rem, 84svh); }
@@ -424,12 +437,6 @@
     }
     @media (max-width: 490px) {
       :root { --display: 2.5rem; --heading: 1.9rem; }
-      .site-header { min-height: 56px; column-gap: .55rem; }
-      .site-header .brand, .site-header .nav a { font-size: 13px; }
-      .site-header .brand svg { display: none; }
-      .site-header .nav { gap: .5rem; }
-      .context-row { padding-top: 6px; }
-      .nav { gap: .15rem 1.05rem; }
       .hero-comparison { font-size: 1.1rem; }
       .hero-content { padding-block-start: 1.2rem; }
       .hero-copy p { margin-top: 1rem; }
@@ -437,6 +444,20 @@
       .metric-value { margin-top: .35rem; font-size: 3.15rem; }
       .metrics { margin-top: .8rem; }
       .result-table th, .result-table td { padding: .66rem .45rem; }
+    }
+    @media (max-width: 720px) {
+      .masthead { --header-gutter: 18px; }
+      .site-header { min-height: 56px; }
+      .site-header .nav { column-gap: 13px; }
+      .context-row { padding-top: 6px; row-gap: 0; }
+      .context-row .nav { width: 100%; }
+    }
+    @media (max-width: 460px) {
+      .site-header { padding-block: 7px; }
+      .site-header .brand { font-size: 14px; }
+      .site-header .brand svg { display: none; }
+      .site-header .nav { column-gap: 9px; font-size: 13px; }
+      .case-trigger { max-width: 100%; }
     }
     @media (prefers-reduced-motion: reduce) {
       .hero.has-motion .wave-layer, .entered { animation: none; }
@@ -465,7 +486,7 @@
       <a class="brand" href="#atas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4m8.5-12-5 16"/></svg> Muhammad Malik Nahar</a>
       <nav class="nav" aria-label="Tautan proyek">
         <a href="https://github.com/maliknaharmn/prediksi-penduduk-miskin">GitHub</a>
-        <a href="https://github.com/maliknaharmn">more about me <span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/maliknaharmn">more about me<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10M7 17 17 7"/></svg></a>
       </nav>
     </div>
     <div class="context-bar">
