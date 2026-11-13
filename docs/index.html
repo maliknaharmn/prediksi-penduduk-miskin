@@ -3,29 +3,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101e30">
+  <meta name="theme-color" content="#f7f3ea">
   <meta name="description" content="Perbandingan Regresi Linear dan Random Forest untuk memperkirakan persentase penduduk miskin di 38 kabupaten dan kota di Jawa Timur pada 2023 berdasarkan data BPS.">
   <title>Prediksi Kemiskinan Jawa Timur — Regresi Linear vs. Random Forest</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101e30'/%3E%3Cpath d='M13 45V30h8v15zm15 0V19h8v26zm15 0V25h8v20z' fill='%23b0ead1'/%3E%3C/svg%3E">
   <style>
+    @font-face {
+      font-family: "Instrument Sans";
+      src: url("./assets/fonts/instrument-sans.woff2") format("woff2");
+      font-weight: 400 700;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Red Hat Mono";
+      src: url("./assets/fonts/red-hat-mono.woff2") format("woff2");
+      font-weight: 400 600;
+      font-display: swap;
+    }
     :root {
       color-scheme: light;
-      --navy: #101e30;
-      --ink: #162738;
-      --muted: #4a5d6d;
-      --paper: #f8faf9;
-      --tint: #eaf2ef;
+      --navy: #182b29;
+      --ink: #201e1a;
+      --muted: #524e45;
+      --paper: #f7f3ea;
+      --tint: #eee9de;
+      --line: #d5cec0;
+      --mono: "Red Hat Mono", ui-monospace, monospace;
       --white: #ffffff;
       --mint: #b0ead1;
       --green: #1c5a4b;
       --hero-text: #e1e9f2;
-      --card: #192f42;
-      --card-control: #263f50;
+      --card: #223a37;
+      --card-control: #304944;
       --measure: 74rem;
       --gutter: clamp(1rem, 4.7vw, 4.5rem);
-      --display: clamp(2.75rem, 6.25vw, 5.85rem);
-      --heading: clamp(1.9rem, 3.4vw, 3.15rem);
-      --lead: clamp(1.125rem, 1.5vw, 1.25rem);
+      --display: 5rem;
+      --heading: 2.75rem;
+      --lead: 1.2rem;
       --body: 1.0625rem;
       --small: .875rem;
       --radius: .4rem;
@@ -37,7 +51,7 @@
       margin: 0;
       background: var(--paper);
       color: var(--ink);
-      font: 400 var(--body)/1.58 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      font: 400 var(--body)/1.58 "Instrument Sans", system-ui, sans-serif;
     }
     [hidden] { display: none !important; }
     a { color: inherit; text-underline-offset: .22em; }
@@ -61,26 +75,24 @@
 
     h1, h2, h3, p, figure { margin: 0; }
     h1, h2, h3 { font-weight: 720; line-height: 1.09; }
-    h1 { font-size: var(--display); line-height: .99; letter-spacing: -.065em; }
+    h1 { font-size: var(--display); line-height: 1; }
     h1 span { display: block; }
     .hero-comparison {
       margin-top: clamp(.7rem, 2vw, 1.1rem);
       color: var(--mint);
-      font-size: clamp(1rem, 2.2vw, 1.5rem);
+      font-size: 1.35rem;
       font-weight: 650;
       line-height: 1.25;
-      letter-spacing: -.025em;
     }
-    h2 { font-size: var(--heading); letter-spacing: -.052em; text-wrap: balance; }
-    h3 { font-size: var(--lead); letter-spacing: -.025em; }
+    h2 { font-size: var(--heading); text-wrap: balance; }
+    h3 { font-size: var(--lead); }
     p + p { margin-top: .9rem; }
 
     .hero {
       position: relative;
       display: grid;
-      grid-template-rows: auto 1fr;
-      min-height: min(45rem, 90vh);
-      min-height: min(45rem, 90svh);
+      min-height: min(40rem, 79vh);
+      min-height: min(40rem, 79svh);
       isolation: isolate;
       overflow: hidden;
       overflow: clip;
@@ -113,24 +125,26 @@
       to { transform: translateX(var(--wave-end)); }
     }
 
-    .site-header {
+    .masthead, .context-bar { border-bottom: 1px solid var(--line); }
+    .site-header, .context-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: .4rem 1.25rem;
-      min-height: 4.25rem;
-      padding-block: .7rem;
+      flex-wrap: wrap;
     }
+    .site-header { min-height: 65px; }
+    .context-row { min-height: 53px; color: var(--muted); font: 400 13px/1.45 var(--mono); }
     .brand {
-      font-weight: 740;
-      letter-spacing: -.025em;
+      gap: 9px;
+      font-weight: 700;
       text-decoration: none;
     }
     .nav {
       display: flex;
       flex-wrap: wrap;
       gap: .2rem clamp(.75rem, 2.3vw, 1.85rem);
-      color: var(--hero-text);
+      color: inherit;
     }
     .nav a, .brand {
       display: inline-flex;
@@ -138,7 +152,8 @@
       min-height: 2.75rem;
     }
     .nav a { text-decoration: none; font-size: var(--small); }
-    .nav a:hover { color: var(--mint); text-decoration: underline; }
+    .nav a:hover { color: #742318; text-decoration: underline; }
+    .context-row .nav a { font-size: inherit; }
 
     .hero-content {
       display: grid;
@@ -203,16 +218,15 @@
     .model-card.is-interactive .card-back { transform: rotateY(180deg); }
     .model-card.is-flipped .card-front { transform: rotateY(-180deg); }
     .model-card.is-flipped .card-back { transform: rotateY(0); }
-    .card-title { font-size: var(--lead); letter-spacing: -.02em; }
+    .card-title { font-size: var(--lead); }
     .metric-value {
       display: flex;
       align-items: baseline;
       flex-wrap: wrap;
       gap: .35rem .5rem;
       margin-top: .5rem;
-      font-size: clamp(2.65rem, 4.5vw, 4.7rem);
+      font-size: 4rem;
       font-weight: 740;
-      letter-spacing: -.065em;
       line-height: .98;
       font-variant-numeric: tabular-nums;
       color: var(--mint);
@@ -239,7 +253,7 @@
       text-align: left;
       transition: background-color 180ms ease, transform 140ms var(--ease-out);
     }
-    .card-toggle:hover { background: #315267; }
+    .card-toggle:hover { background: #3b5650; }
     .card-toggle svg { flex: 0 0 auto; color: var(--mint); }
     .comparison-list { display: grid; gap: .62rem; margin: .85rem 0 0; padding: 0; list-style: none; }
     .comparison-list li {
@@ -334,7 +348,7 @@
     .visual-feature figcaption { margin: 0; font-size: var(--body); }
     .visual-feature strong { display: block; font-size: var(--lead); margin-bottom: .5rem; }
 
-    .method-section { background: var(--white); }
+    .method-section { background: var(--paper); }
     .method {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -346,8 +360,29 @@
     .method p { margin-top: .65rem; max-width: 44ch; }
     .closing { background: var(--tint); }
     .closing p { max-width: 60ch; }
-    .site-footer { background: var(--navy); color: var(--hero-text); padding-block: 1.65rem; }
-    .site-footer p { font-size: var(--small); }
+    .site-footer { border-top: 1px solid var(--line); }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+      gap: 20px 28px;
+      padding-block: 27px 42px;
+    }
+    .footer-identity p { max-width: 36ch; color: var(--muted); }
+    .footer-grid h2 { margin-bottom: 10px; color: var(--muted); font: 500 13px/1.4 var(--mono); }
+    .footer-grid ul { list-style: none; margin: 0; padding: 0; }
+    .footer-grid li + li { margin-top: 6px; }
+    .footer-grid nav a { text-decoration: none; }
+    .footer-grid nav a:hover { text-decoration: underline; }
+    .footer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px 24px;
+      border-top: 1px solid var(--line);
+      padding-block: 16px 37px;
+      color: var(--muted);
+      font: 400 13px/1.55 var(--mono);
+    }
 
     .entered { animation: arrive 640ms var(--ease-out) var(--enter-delay, 0ms) both; }
     .entered[data-reveal="image"] { animation-name: picture-arrive; }
@@ -362,9 +397,12 @@
 
     @media (min-width: 741px) and (max-height: 680px) {
       .hero-content { padding-block: 2.4rem 3.5rem; }
-      h1 { font-size: clamp(2.7rem, min(6.1vw, 11.5svh), 5.25rem); }
+    }
+    @media (max-width: 1100px) {
+      :root { --display: 4rem; }
     }
     @media (max-width: 900px) {
+      :root { --display: 3.25rem; --heading: 2.25rem; }
       .hero { min-height: min(37rem, 84svh); }
       .split, .results .split { gap: 2rem; }
       .hero-content { gap: 1.65rem; }
@@ -375,21 +413,28 @@
       .hero-content, .split, .results .split, .visual-grid, .visual-feature {
         grid-template-columns: minmax(0, 1fr);
       }
-      .hero-content { gap: 1.5rem; padding-block: 1.95rem 3.85rem; }
+      .hero-content { gap: 1.5rem; padding-block: 1.95rem 4.75rem; }
       .hero-waves { height: clamp(16rem, 47svh, 24rem); }
       .model-card { width: min(100%, 28rem); }
       .visual-feature figcaption { grid-row: 2; }
       .method { grid-template-columns: minmax(0, 1fr); }
       .predictors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .footer-identity { grid-column: 1 / -1; }
     }
     @media (max-width: 490px) {
-      .site-header { display: grid; gap: 0; padding-block: .6rem .15rem; }
-      .brand { min-height: 2.25rem; }
+      :root { --display: 2.5rem; --heading: 1.9rem; }
+      .site-header { min-height: 56px; column-gap: .55rem; }
+      .site-header .brand, .site-header .nav a { font-size: 13px; }
+      .site-header .brand svg { display: none; }
+      .site-header .nav { gap: .5rem; }
+      .context-row { padding-top: 6px; }
       .nav { gap: .15rem 1.05rem; }
+      .hero-comparison { font-size: 1.1rem; }
       .hero-content { padding-block-start: 1.2rem; }
       .hero-copy p { margin-top: 1rem; }
       .actions { margin-top: 1.05rem; }
-      .metric-value { margin-top: .35rem; }
+      .metric-value { margin-top: .35rem; font-size: 3.15rem; }
       .metrics { margin-top: .8rem; }
       .result-table th, .result-table td { padding: .66rem .45rem; }
     }
@@ -400,9 +445,50 @@
       .model-card.is-interactive .card-face, .primary, .card-toggle { transition: none; }
     }
   </style>
+  <link rel="stylesheet" href="./assets/case-switcher.css">
+  <style>
+    .case-switcher { --case-open: state(false); --case-back: state(false); }
+    .case-trigger:on(click) { --case-open: toggle(); --case-back: set(false); }
+    .case-switcher:on(keydown(Escape)) { --case-open: set(false); --case-back: set(true); }
+    .case-switcher:on(outside(click)) { --case-open: set(false); }
+    .case-trigger { --attr-aria-expanded: var(--case-open); focus: when(--case-back); }
+    .case-switcher:when(--case-open) .case-options { display: block; }
+    .case-options a { focus: when(--case-open); }
+  </style>
+  <script src="./vendor/reactive-css/reactive-css.min.js" defer></script>
+  <noscript><style>.case-switcher{display:none}</style></noscript>
 </head>
 <body>
   <a class="skip" href="#konten">Lewati navigasi</a>
+  <header class="masthead">
+    <div class="site-header wrap">
+      <a class="brand" href="#atas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4m8.5-12-5 16"/></svg> Muhammad Malik Nahar</a>
+      <nav class="nav" aria-label="Tautan proyek">
+        <a href="https://github.com/maliknaharmn/prediksi-penduduk-miskin">GitHub</a>
+        <a href="https://github.com/maliknaharmn">more about me <span aria-hidden="true">↗</span></a>
+      </nav>
+    </div>
+    <div class="context-bar">
+      <div class="context-row wrap">
+        <div class="case-switcher">
+          <button class="case-trigger" type="button" aria-expanded="false" aria-controls="case-options">
+            <span>Studi kasus 02: <strong>Prediksi Kemiskinan</strong></span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <ul class="case-options" id="case-options" aria-label="Studi kasus portofolio">
+            <li><a href="https://maliknaharmn.github.io/Pemetaan-Kerawanan-Perceraian-Kesejahteraan/"><span>Studi kasus 01</span><strong>Rasio Cerai</strong></a></li>
+            <li aria-current="page"><span>Studi kasus 02</span><strong>Prediksi Kemiskinan</strong><span class="case-current">Aktif</span></li>
+          </ul>
+        </div>
+        <nav class="nav" aria-label="Bagian halaman">
+          <a href="#data">Data</a>
+          <a href="#hasil">Hasil</a>
+          <a href="#visualisasi">Visualisasi</a>
+          <a href="#metode">Metode</a>
+        </nav>
+      </div>
+    </div>
+  </header>
   <div class="hero" id="atas">
     <!-- Adapted from Jeffrey Bennett; see assets/waves-LICENSE.txt. -->
     <div class="hero-waves" aria-hidden="true">
@@ -422,16 +508,6 @@
         </g>
       </svg>
     </div>
-    <header class="site-header wrap">
-      <a class="brand" href="#atas">Malik Nahar</a>
-      <nav class="nav" aria-label="Navigasi utama">
-        <a href="#data">Data</a>
-        <a href="#hasil">Hasil</a>
-        <a href="#visualisasi">Visualisasi</a>
-        <a href="#metode">Metode</a>
-      </nav>
-    </header>
-
     <div class="hero-content wrap">
       <div class="hero-copy">
         <h1 data-reveal>
@@ -596,7 +672,25 @@
 
   <footer class="site-footer">
     <div class="wrap">
-      <p>© 2026 Muhammad Malik Nahar</p>
+      <div class="footer-grid">
+        <div class="footer-identity">
+          <a class="brand" href="#atas">Muhammad Malik Nahar</a>
+          <p>Studi kasus data science: membandingkan Regresi Linear dan Random Forest untuk memperkirakan persentase penduduk miskin di Jawa Timur.</p>
+        </div>
+        <nav aria-labelledby="footer-jelajahi">
+          <h2 id="footer-jelajahi">Jelajahi</h2>
+          <ul><li><a href="#data">Data</a></li><li><a href="#hasil">Hasil evaluasi</a></li><li><a href="#visualisasi">Visualisasi</a></li><li><a href="#metode">Metode</a></li></ul>
+        </nav>
+        <nav aria-labelledby="footer-reproduksi">
+          <h2 id="footer-reproduksi">Reproduksi</h2>
+          <ul><li><a href="https://github.com/maliknaharmn/prediksi-penduduk-miskin">Repositori GitHub</a></li><li><a href="https://github.com/maliknaharmn/prediksi-penduduk-miskin/tree/main/report">Laporan R Markdown</a></li></ul>
+        </nav>
+        <nav aria-labelledby="footer-portofolio">
+          <h2 id="footer-portofolio">Portofolio</h2>
+          <ul><li><a href="https://maliknaharmn.github.io/Pemetaan-Kerawanan-Perceraian-Kesejahteraan/">Studi kasus 01: Rasio Cerai</a></li><li><a href="https://github.com/maliknaharmn">Profil GitHub</a></li></ul>
+        </nav>
+      </div>
+      <div class="footer-meta"><span>Studi kasus 02 · Data 2023</span><span>© 2026 Muhammad Malik Nahar</span></div>
     </div>
   </footer>
 
